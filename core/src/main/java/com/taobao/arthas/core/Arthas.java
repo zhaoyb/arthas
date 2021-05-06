@@ -26,17 +26,18 @@ public class Arthas {
         attachAgent(parse(args));
     }
 
+    /**
+     * 参数转换类， 就是把启动时指定的参数，转为一个类，方便处理
+     */
     private Configure parse(String[] args) {
+
         Option pid = new TypedOption<Long>().setType(Long.class).setShortName("pid").setRequired(true);
         Option core = new TypedOption<String>().setType(String.class).setShortName("core").setRequired(true);
         Option agent = new TypedOption<String>().setType(String.class).setShortName("agent").setRequired(true);
         Option target = new TypedOption<String>().setType(String.class).setShortName("target-ip");
-        Option telnetPort = new TypedOption<Integer>().setType(Integer.class)
-                .setShortName("telnet-port");
-        Option httpPort = new TypedOption<Integer>().setType(Integer.class)
-                .setShortName("http-port");
-        Option sessionTimeout = new TypedOption<Integer>().setType(Integer.class)
-                        .setShortName("session-timeout");
+        Option telnetPort = new TypedOption<Integer>().setType(Integer.class).setShortName("telnet-port");
+        Option httpPort = new TypedOption<Integer>().setType(Integer.class).setShortName("http-port");
+        Option sessionTimeout = new TypedOption<Integer>().setType(Integer.class).setShortName("session-timeout");
 
         Option username = new TypedOption<String>().setType(String.class).setShortName("username");
         Option password = new TypedOption<String>().setType(String.class).setShortName("password");
@@ -84,8 +85,10 @@ public class Arthas {
 
     private void attachAgent(Configure configure) throws Exception {
         VirtualMachineDescriptor virtualMachineDescriptor = null;
+        // 调用系统方法，获取所有的 Java 虚拟机进程，并迭代
         for (VirtualMachineDescriptor descriptor : VirtualMachine.list()) {
             String pid = descriptor.id();
+            // 判断当前虚拟机进程id和配置的是否一样
             if (pid.equals(Long.toString(configure.getJavaPid()))) {
                 virtualMachineDescriptor = descriptor;
                 break;
@@ -93,16 +96,21 @@ public class Arthas {
         }
         VirtualMachine virtualMachine = null;
         try {
+            // attach 到目标进程
             if (null == virtualMachineDescriptor) { // 使用 attach(String pid) 这种方式
                 virtualMachine = VirtualMachine.attach("" + configure.getJavaPid());
             } else {
                 virtualMachine = VirtualMachine.attach(virtualMachineDescriptor);
             }
 
+            // 获取目标进程 系统信息
             Properties targetSystemProperties = virtualMachine.getSystemProperties();
+            // 目标进程 Java 版本
             String targetJavaVersion = JavaVersionUtils.javaVersionStr(targetSystemProperties);
+            // 当前进程 Java 版本
             String currentJavaVersion = JavaVersionUtils.javaVersionStr();
             if (targetJavaVersion != null && currentJavaVersion != null) {
+                // 如果目标进程 Java 版本 不等于 当前进程 Java 版本 ， 附加进程可能失败，打印警告信息
                 if (!targetJavaVersion.equals(currentJavaVersion)) {
                     AnsiLog.warn("Current VM java version: {} do not match target VM java version: {}, attach may fail.",
                                     currentJavaVersion, targetJavaVersion);
@@ -132,6 +140,12 @@ public class Arthas {
         }
     }
 
+    /**
+     * 运行入口
+     *
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         try {
             new Arthas(args);
