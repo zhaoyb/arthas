@@ -16,7 +16,8 @@ import static java.lang.reflect.Modifier.isStatic;
  * @author hengyunabc 2018-11-12
  */
 @Config(prefix = "arthas")
-public class Configure {
+public class
+Configure {
 
     private String ip;
     private Integer telnetPort;
@@ -190,6 +191,7 @@ public class Configure {
 
         final Map<String, String> map = new HashMap<String, String>();
         for (Field field : ArthasReflectUtils.getFields(Configure.class)) {
+
 
             // 过滤掉静态类
             if (isStatic(field.getModifiers())) {

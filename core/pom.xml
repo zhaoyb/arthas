@@ -42,6 +42,7 @@
                             <finalName>arthas-core-shade</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <!-- main 类这这里配置 -->
                                     <mainClass>com.taobao.arthas.core.Arthas</mainClass>
                                     <manifestEntries>
                                         <Created-By>core engine team, middleware group, alibaba inc.</Created-By>

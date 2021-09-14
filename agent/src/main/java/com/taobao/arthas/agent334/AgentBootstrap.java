@@ -1,5 +1,7 @@
 package com.taobao.arthas.agent334;
 
+import com.taobao.arthas.agent.ArthasClassloader;
+
 import java.arthas.SpyAPI;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,8 +11,6 @@ import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
-
-import com.taobao.arthas.agent.ArthasClassloader;
 
 /**
  * 代理启动类
@@ -24,17 +24,21 @@ public class AgentBootstrap {
     private static final String IS_BIND = "isBind";
 
     private static PrintStream ps = System.err;
+
+    /**
+     * 初始化日志路径
+     */
     static {
         try {
             File arthasLogDir = new File(System.getProperty("user.home") + File.separator + "logs" + File.separator
-                    + "arthas" + File.separator);
+                                                 + "arthas" + File.separator);
             if (!arthasLogDir.exists()) {
                 arthasLogDir.mkdirs();
             }
             if (!arthasLogDir.exists()) {
                 // #572
                 arthasLogDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "logs" + File.separator
-                        + "arthas" + File.separator);
+                                                + "arthas" + File.separator);
                 if (!arthasLogDir.exists()) {
                     arthasLogDir.mkdirs();
                 }
@@ -60,10 +64,24 @@ public class AgentBootstrap {
      */
     private static volatile ClassLoader arthasClassLoader;
 
+
+    /**
+     *
+     * -javaagent：xx  的方式  是会从这个方法进入
+     *
+     * @param args
+     * @param inst
+     */
     public static void premain(String args, Instrumentation inst) {
         main(args, inst);
     }
 
+    /**
+     * 主要是看这两个方法了，一般attach  都是会从这里进入
+     *
+     * @param args
+     * @param inst
+     */
     public static void agentmain(String args, Instrumentation inst) {
         main(args, inst);
     }
@@ -118,7 +136,9 @@ public class AgentBootstrap {
                 agentArgs = args;
             }
 
+            //arthas-core.jar
             File arthasCoreJarFile = new File(arthasCoreJar);
+            // 这里通过配置去找 arthas-core.jar， 如果没有找到， 则先获取当前类的路径， 然后从当前类的路径去找。
             if (!arthasCoreJarFile.exists()) {
                 ps.println("Can not find arthas-core jar file from args: " + arthasCoreJarFile);
                 // try to find from arthas-agent.jar directory
@@ -178,8 +198,11 @@ public class AgentBootstrap {
          * ArthasBootstrap bootstrap = ArthasBootstrap.getInstance(inst);
          * </pre>
          */
+        // 找到ArthasBootstrap.class， 反射调用
         Class<?> bootstrapClass = agentLoader.loadClass(ARTHAS_BOOTSTRAP);
+        // 反射调用getInstance，  因为getInstance是一个静态方法，所有不需要有实例,getInstance就是调用了构造函数，返回了实例
         Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE, Instrumentation.class, String.class).invoke(null, inst, args);
+        // 反射调用IS_BIND， 因为IS_BIND是一个实例方法， 所以需要传入实例对象
         boolean isBind = (Boolean) bootstrapClass.getMethod(IS_BIND).invoke(bootstrap);
         if (!isBind) {
             String errorMsg = "Arthas server port binding failed! Please check $HOME/logs/arthas/arthas.log for more details.";

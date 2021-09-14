@@ -52,6 +52,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifestEntries>
+                                    <!--这里 premain 和 agent-class-->
                                     <Premain-Class>com.taobao.arthas.agent334.AgentBootstrap</Premain-Class>
                                     <Agent-Class>com.taobao.arthas.agent334.AgentBootstrap</Agent-Class>
                                     <Can-Redefine-Classes>true</Can-Redefine-Classes>

@@ -22,6 +22,12 @@ import java.util.Properties;
  */
 public class Arthas {
 
+    /**
+     * 构造函数
+     *
+     * @param args
+     * @throws Exception
+     */
     private Arthas(String[] args) throws Exception {
         attachAgent(parse(args));
     }
@@ -123,8 +129,9 @@ public class Arthas {
             //convert jar path to unicode string
             configure.setArthasAgent(encodeArg(arthasAgentPath));
             configure.setArthasCore(encodeArg(configure.getArthasCore()));
-            virtualMachine.loadAgent(arthasAgentPath,
-                    configure.getArthasCore() + ";" + configure.toString());
+            // loadAgent方法参数，其中第一个参数为agent路径， 第二个参数向jar包中的agentmain()方法传递参数（此处为agent-core.jar包路径和config序列化之后的字符串）
+            // 这里就是这个 java agent的标准启动方式了 之后就调用arthas-agent.jar
+            virtualMachine.loadAgent(arthasAgentPath,configure.getArthasCore() + ";" + configure.toString());
         } finally {
             if (null != virtualMachine) {
                 virtualMachine.detach();
@@ -141,7 +148,7 @@ public class Arthas {
     }
 
     /**
-     * 运行入口
+     * 运行入口， 整个的入口 应该就是这里了
      *
      *
      * @param args

@@ -128,6 +128,7 @@ public class ArthasBootstrap {
     private ArthasBootstrap(Instrumentation instrumentation, Map<String, String> args) throws Throwable {
         this.instrumentation = instrumentation;
 
+        // 初始化 json 属性
         initFastjson();
 
         // 1. initSpy()
@@ -135,6 +136,7 @@ public class ArthasBootstrap {
         // 2. ArthasEnvironment
         initArthasEnvironment(args);
 
+        // outputpath  输出路径
         String outputPathStr = configure.getOutputPath();
         if (outputPathStr == null) {
             outputPathStr = ArthasConstants.ARTHAS_OUTPUT;
@@ -533,7 +535,7 @@ public class ArthasBootstrap {
     }
 
     /**
-     * 单例
+     * 单例   arthas-agent.jar 里面反射调用
      *
      * @param instrumentation JVM增强
      * @return ArthasServer单例
@@ -544,6 +546,7 @@ public class ArthasBootstrap {
             return arthasBootstrap;
         }
 
+        // 参数转换，转为 map 结构
         Map<String, String> argsMap = FeatureCodec.DEFAULT_COMMANDLINE_CODEC.toMap(args);
         // 给配置全加上前缀
         Map<String, String> mapWithPrefix = new HashMap<String, String>(argsMap.size());

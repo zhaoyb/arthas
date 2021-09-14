@@ -851,6 +851,7 @@ attach_jvm()
         tempArgs+=("${SESSION_TIMEOUT}")
     fi
 
+    # 启动命令， 进入到arthas-core.jar
     "${java_command[@]}" \
         ${ARTHAS_OPTS} ${JVM_OPTS} \
         -jar "${arthas_lib_dir}/arthas-core.jar" \
@@ -1004,9 +1005,11 @@ main()
 {
     echo "Arthas script version: $ARTHAS_SCRIPT_VERSION"
 
+    # 检查权限
     check_permission
     reset_for_env
 
+    # 参数解析
     parse_arguments "${@}" \
         || exit_on_err 1 "$(usage)"
 
@@ -1062,5 +1065,5 @@ main()
 }
 
 
-
+# 入口函数
 main "${@}"
