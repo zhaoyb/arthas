@@ -68,6 +68,10 @@ public class BuiltinCommandPack implements CommandResolver {
         return commands;
     }
 
+    /**
+     * 初始化支持的命令
+     *
+     */
     private static void initCommands() {
         commands.add(Command.create(HelpCommand.class));
         commands.add(Command.create(AuthCommand.class));

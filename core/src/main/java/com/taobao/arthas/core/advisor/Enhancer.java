@@ -393,6 +393,11 @@ public class Enhancer implements ClassFileTransformer {
                 final Class<?>[] classArray = new Class<?>[size];
                 arraycopy(matchingClasses.toArray(), 0, classArray, 0, size);
                 if (classArray.length > 0) {
+                    /**
+                     *
+                     * 刷新， 再次加载
+                     *
+                     */
                     inst.retransformClasses(classArray);
                     logger.info("Success to batch transform classes: " + Arrays.toString(classArray));
                 }
